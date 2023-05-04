@@ -31,6 +31,8 @@ block
 statement
     : primitiveType IDENTIFIER (',' IDENTIFIER)* (';')+ # declaration
     | expr (';')+                                       # emptyStmt
+    | WRITE_KEYWORD expr (',' expr)*   (';')+           # writeExpr
+    | READ_KEYWORD IDENTIFIER (',' IDENTIFIER)*  (';')+ # readExpr
     | COMMENT                                           # comment
     ;
 
@@ -47,8 +49,6 @@ expr: expr op=(MUL|DIV|MOD) expr                # mulDiv
     | BOOL                                      # bool
     | '(' expr ')'                              # parens
     | <assoc=right> IDENTIFIER '=' expr         # assignment
-    | WRITE_KEYWORD expr (',' expr)*            # writeExpr
-    | READ_KEYWORD IDENTIFIER (',' IDENTIFIER)* # readExpr
     ;
 
 primitiveType
