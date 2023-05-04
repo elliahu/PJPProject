@@ -13,6 +13,7 @@ namespace PJPProject
     {
         public static SymbolTable SymbolTable = new();
         private StringBuilder _code = new();
+        private List<int> _labels = new(){ 0 };
         public string GetCode() => _code.ToString();
         public void Dump(string filename)
         {
@@ -25,12 +26,23 @@ namespace PJPProject
             _code.AppendLine(instruction);
         }
 
-        public override (PrimitiveType type, object value) VisitStmt([NotNull] PJPProjectParser.StmtContext context)
+        public override (PrimitiveType type, object value) VisitCodeBlock([NotNull] PJPProjectParser.CodeBlockContext context)
         {
-            foreach (var statement in context.statement())
+            foreach(var statement in context.statement())
             {
                 Visit(statement);
             }
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitConditionBlockBlock([NotNull] PJPProjectParser.ConditionBlockBlockContext context)
+        {
+            int last = _labels.Last() + 1;
+            Visit(context.expr());
+            AddInstruction(VirtualMachine.Instruction.Fjmp(last));
+            Visit(context.block());
+            AddInstruction(VirtualMachine.Instruction.Label(last));
+
             return (PrimitiveType.Error, -1);
         }
 
@@ -165,9 +177,15 @@ namespace PJPProject
             {
                 AddInstruction(VirtualMachine.Instruction.Lt);
             }
+            if(op == "!=")
+            {
+                AddInstruction(VirtualMachine.Instruction.Eq);
+                AddInstruction(VirtualMachine.Instruction.Not);
+            }
             return (PrimitiveType.Error, -1);
         }
 
+      
         public override (PrimitiveType type, object value) VisitAndOr([NotNull] PJPProjectParser.AndOrContext context)
         {
             Visit(context.expr()[0]);

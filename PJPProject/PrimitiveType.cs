@@ -185,9 +185,6 @@ namespace PJPProject
                         if (Convert.ToSingle(val2.value) == Convert.ToSingle(0)) throw new VirtualMachine.InterpreterException("Cannot devide by 0!");
                         return (resultType, Convert.ToSingle(val1.value) / Convert.ToSingle(val2.value));
                     case AlgebraOperation.Multiply: return (resultType, Convert.ToSingle(val1.value) * Convert.ToSingle(val2.value));
-                    case AlgebraOperation.Modulo:
-                        if (Convert.ToSingle(val2.value) == Convert.ToSingle(0)) throw new VirtualMachine.InterpreterException("Cannot devide by 0!");
-                        return (resultType, Convert.ToSingle(val1.value) % Convert.ToSingle(val2.value));
                 }
             }
             return (PrimitiveType.Error, -1);

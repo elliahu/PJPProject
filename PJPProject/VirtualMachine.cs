@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,6 +47,7 @@ namespace PJPProject
         private Stack<(PrimitiveType type, object value)> _stack = new();
         private List<string> _code = new();
         public static SymbolTable SymbolTable = new();
+        private Dictionary<int, int> _labels = new();
 
         public void ReadFile(string filename)
         {
@@ -67,6 +69,7 @@ namespace PJPProject
             _stack.Clear();
             try
             {
+
                 foreach (var instruction in _code)
                 {
                     // TODO if there is something like PUSH S "a a", it will not work
@@ -240,6 +243,7 @@ namespace PJPProject
         }
         private void Save(string id)
         {
+            // TODO check if declared
             if (SymbolTable.Contains(id))
             {
                 var existing = SymbolTable.GetVariable(id);

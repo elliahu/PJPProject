@@ -2,33 +2,38 @@
 
 /** The start rule; begin parsing here. */
 program
-    : (statement+ | whileLoop | condition)+ EOF                                        #stmt
+    : block     program? EOF
+    | statement program? EOF
+    | whileLoop program? EOF
+    | condition program? EOF                            
     ;
 
-whileLoop
-    : WHILE_KEYWORD '(' expr ')' (block|statement) 
+whileLoop                                                                           
+    : WHILE_KEYWORD '(' expr ')' (block|statement)  #whileBlock
     ;
 
-condition
-    : IF_KEYWORD '(' expr ')' (block|statement)  else?
+condition                                                                           
+    : IF_KEYWORD '(' expr ')' (block)  else?  #conditionBlockBlock
+    | IF_KEYWORD '(' expr ')' (statement)  else?  #conditionBlockStatement
     ;
 
 else
-    : ELSE_KEYWORD  (block|statement)  
+    : ELSE_KEYWORD  (block|statement)   #elseBlock
     ;
 
 block
-    : '{' statement+ '}' 
+    : '{' statement+ '}'                    #codeBlock      
     ;
 
 statement
     : primitiveType IDENTIFIER (',' IDENTIFIER)* (';')+ # declaration
     | expr (';')+                                       # emptyStmt
+    | COMMENT                                           # comment
     ;
 
 expr: expr op=(MUL|DIV|MOD) expr                # mulDiv
     | expr op=(ADD|SUB|CONCAT) expr             # addSub
-    | expr op=(LT|GT|EQ) expr                   # compare
+    | expr op=(LT|GT|EQ|NOTEQ) expr             # compare
     | expr op=(AND|OR) expr                     # andOr
     | NOT expr                                  # not
     | SUB expr                                  # uminus
@@ -73,10 +78,12 @@ EQ : '==' ;
 AND : '&&' ;
 OR : '||' ;
 NOT : '!' ;
+NOTEQ: '!=' ;
 CONCAT : '.' ;
-STRING :  ('"' [a-zA-Z0-9(){}<>,.-_!?:/*+%=; ]+ '"') | '""';
+STRING :  ('"' [a-zA-Z0-9(){}<>,._!?:/*+%=; ]* '-'? [a-zA-Z0-9(){}<>,._!?:/*+%=; ]* '"') | '""';
 BOOL : ('true'|'false');
 IDENTIFIER : [a-zA-Z] [a-zA-Z0-9]* ; 
 FLOAT : [0-9]+'.'[0-9]+ ;
 INT : [0-9]+ ; 
 WS : [ \t\r\n]+ -> skip ; // toss out whitespace
+COMMENT: '//' [a-zA-Z0-9.()"*-+/%,; ]+;
