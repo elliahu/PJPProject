@@ -10,9 +10,10 @@ namespace PJPProject
 
             IList<string> stack = ((Parser)recognizer).GetRuleInvocationStack();
             _ = stack.Reverse();
-
-            Console.Error.WriteLine("rule stack: " + String.Join(", ", stack));
-            Console.Error.WriteLine("line " + line + ":" + charPositionInLine + " at " + offendingSymbol + ": " + msg);
+            Logger.Log(LogLevel.ERROR,
+                "rule stack: " + String.Join(", ", stack) +
+                "line " + line + ":" + charPositionInLine + " at " + offendingSymbol + ": " + msg
+                , ConsoleColor.Red);
         }
     }
 }

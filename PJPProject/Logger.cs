@@ -24,6 +24,7 @@ namespace PJPProject
                 var c = Console.ForegroundColor;
                 Console.ForegroundColor = color;
                 Console.WriteLine(Enum.GetName(level) + ": " + message);
+                Console.ForegroundColor = c;
             }
         }
     }
