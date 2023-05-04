@@ -13,6 +13,7 @@ expr: expr op=(MUL|DIV|MOD) expr                # mulDiv
     | expr op=(LT|GT|EQ) expr                   # compare
     | expr op=(AND|OR) expr                     # andOr
     | NOT expr                                  # not
+    | SUB expr                                  # uminus
     | INT                                       # int
     | IDENTIFIER                                # id
     | FLOAT                                     # float
@@ -38,6 +39,7 @@ STRING_KEYWORD : 'string';
 BOOL_KEYWORD : 'bool';
 WRITE_KEYWORD : 'write';
 READ_KEYWORD : 'read';
+
 SEMI:               ';';
 COMMA:              ',';
 MUL : '*' ; 

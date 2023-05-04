@@ -6,6 +6,7 @@ using System.Globalization;
 Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
 var inputFile = "input.txt";
+var outputFile = "output.txt";
 Logger.Log(LogLevel.INFO, "Parsing: " + inputFile);
 
 // Parsing
@@ -22,15 +23,18 @@ IParseTree tree = parser.program();
 
 if(parser.NumberOfSyntaxErrors == 0)
 {
+    // traverse tree and generate isntructions
     var visitor = new TreeVisitor();
     visitor.Visit(tree);
-
-    VirtualMachine vm = new(visitor.GetCode());
-    Logger.Log(LogLevel.INFO, "GENERATED CODE:", ConsoleColor.White);
-    vm.DumpCode();
-    Logger.Log(LogLevel.INFO, "OUTPUT:", ConsoleColor.White);
-    vm.Run();
-
+    visitor.Dump(outputFile);
     Logger.Log(LogLevel.INFO, "COMPILE ERRORS:", ConsoleColor.White);
     ErrorList.Dump();
+
+    // create VM and read instruction
+    VirtualMachine vm = new();
+    vm.ReadFile(outputFile);
+    Logger.Log(LogLevel.INFO, "GENERATED CODE:", ConsoleColor.White);
+    vm.Dump();
+    Logger.Log(LogLevel.INFO, "OUTPUT:", ConsoleColor.White);
+    vm.Run();
 }

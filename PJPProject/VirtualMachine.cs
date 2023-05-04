@@ -47,15 +47,24 @@ namespace PJPProject
         private List<string> _code = new();
         public static SymbolTable SymbolTable = new();
 
-        public VirtualMachine(string code)
+        public void ReadFile(string filename)
         {
-            this._code = code.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            var sourceFile = File.ReadAllLines(filename);
+            _code = new List<string>(sourceFile);
         }
 
-        public void DumpCode() { Console.WriteLine(String.Join("\n", this._code)); }
+        //this._code = code.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+        public void Dump() { Console.WriteLine(String.Join("\n", this._code)); }
 
         public void Run()
         {
+            if(_code.Count == 0)
+            {
+                Logger.Log(LogLevel.ERROR, "No code to interpret. Did you foregt to call ReadFile()?", ConsoleColor.Red);
+                return;
+            }
+
+            _stack.Clear();
             try
             {
                 foreach (var instruction in _code)
@@ -106,6 +115,7 @@ namespace PJPProject
                 Logger.Log(LogLevel.ERROR, "Interpreter encountered the following Error:", ConsoleColor.Red);
                 Logger.Log(LogLevel.ERROR, iex.Message, ConsoleColor.Red);
             }
+            _code.Clear();
         }
 
         private void Add()
@@ -145,7 +155,10 @@ namespace PJPProject
         }
         private void Uminus()
         {
-
+            var uminus = Pop();
+            var val = TypeChecker.Uminus(uminus);
+            if(val.type != PrimitiveType.Error) Push(val.type, val.value);
+            else throw new InterpreterException($"Invalid operation '-' (unary minus) for type '{Enum.GetName(uminus.type)}' ");
         }
         private void Concat()
         {

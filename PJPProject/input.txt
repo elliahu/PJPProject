@@ -10,3 +10,4 @@ write 10 % 3.0;
 write true || false;
 write !true;
 write "a" . "b";
+write -2;

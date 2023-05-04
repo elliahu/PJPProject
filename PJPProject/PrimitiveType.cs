@@ -43,6 +43,10 @@ namespace PJPProject
         {
             Concat
         }
+        public enum UnaryOperation
+        {
+            Uminus
+        }
         public static bool CanCast(PrimitiveType t1, PrimitiveType t2)
         {
             if (t1 == PrimitiveType.Int)
@@ -240,6 +244,23 @@ namespace PJPProject
             if(val1.type == PrimitiveType.String && val2.type == PrimitiveType.String)
             {
                 return (PrimitiveType.String, Convert.ToString(val1.value) + Convert.ToString(val2.value));
+            }
+            return (PrimitiveType.Error, -1);
+        }
+
+        public static (PrimitiveType type, object value) Uminus(
+            (PrimitiveType type, object value) val)
+        {
+            if(val.type == PrimitiveType.Int || val.type == PrimitiveType.Float)
+            {
+                if(val.type == PrimitiveType.Int)
+                {
+                    return (PrimitiveType.Int, -Convert.ToInt32(val.value));
+                }
+                if (val.type == PrimitiveType.Float)
+                {
+                    return (PrimitiveType.Float, -Convert.ToSingle(val.value));
+                }
             }
             return (PrimitiveType.Error, -1);
         }

@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,11 @@ namespace PJPProject
         public static SymbolTable SymbolTable = new();
         private StringBuilder _code = new();
         public string GetCode() => _code.ToString();
+        public void Dump(string filename)
+        {
+            Logger.Log(LogLevel.INFO, $"Created file {filename}");
+            File.WriteAllText(filename, _code.ToString());
+        }
 
         private void AddInstruction(string instruction)
         {
@@ -183,6 +189,13 @@ namespace PJPProject
         {
             Visit(context.expr());
             AddInstruction(VirtualMachine.Instruction.Not);
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitUminus([NotNull] PJPProjectParser.UminusContext context)
+        {
+            Visit(context.expr());
+            AddInstruction(VirtualMachine.Instruction.Uminus);
             return (PrimitiveType.Error, -1);
         }
         public override (PrimitiveType type, object value) VisitAssignment([NotNull] PJPProjectParser.AssignmentContext context)
