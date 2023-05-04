@@ -258,7 +258,15 @@ namespace PJPProject
         }
         private (PrimitiveType type, object value) Pop()
         {
-            return _stack.Pop();
+            try
+            {
+                var pop = _stack.Pop();
+                return pop;
+            }
+            catch (Exception)
+            {
+                throw new InterpreterException($"Invalid order of operations caused stack exception.");
+            }
         }
         private void Load(string id)
         {
