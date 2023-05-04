@@ -56,36 +56,7 @@ namespace PJPProject
             _code = new List<string>(sourceFile);
         }
 
-        //this._code = code.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
         public void Dump() { Console.WriteLine(String.Join("\n", this._code)); }
-
-        private List<string> SplitArguments(string input)
-        {
-            var result = new List<string>();
-            int spaceIndex = 0;
-            string arg = "";
-            bool inString = false;
-            foreach(char c in input)
-            {
-                arg.Append(c);
-                if (c == '\"')
-                {
-                    inString = !inString;
-                    continue;
-                }
-
-                if(c == ' ' && !inString) 
-                {
-                    result.Add(arg);
-                    arg = "";
-                    spaceIndex++;
-                    continue;
-                }
-                if(spaceIndex == 0) { continue; }
-                
-            }
-            return result;
-        }
 
         public void Run()
         {
