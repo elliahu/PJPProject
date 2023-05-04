@@ -38,10 +38,11 @@ namespace PJPProject
         public override (PrimitiveType type, object value) VisitConditionBlockBlock([NotNull] PJPProjectParser.ConditionBlockBlockContext context)
         {
             int last = _labels.Last() + 1;
-            Visit(context.expr());
+            Visit(context.expr()); // condition
             AddInstruction(VirtualMachine.Instruction.Fjmp(last));
             Visit(context.block());
             AddInstruction(VirtualMachine.Instruction.Label(last));
+            _labels.Add(last);
 
             return (PrimitiveType.Error, -1);
         }

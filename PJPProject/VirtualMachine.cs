@@ -69,9 +69,10 @@ namespace PJPProject
             _stack.Clear();
             try
             {
-
-                foreach (var instruction in _code)
+                IndexLabels();
+                for(int row = 0; row < _code.Count;row++)
                 {
+                    var instruction = _code[row];
                     // TODO if there is something like PUSH S "a a", it will not work
                     var parts = instruction.Split(" ");
 
@@ -101,8 +102,8 @@ namespace PJPProject
                     else if (instruction.StartsWith("LOAD")) Load(parts[1]);
                     else if (instruction.StartsWith("SAVE")) Save(parts[1]);
                     else if (instruction.StartsWith("LABEL")) Label();
-                    else if (instruction.StartsWith("JMP")) Jmp();
-                    else if (instruction.StartsWith("FJMP")) Fjmp();
+                    else if (instruction.StartsWith("JMP")) Jmp(int.Parse(parts[1]),ref row);
+                    else if (instruction.StartsWith("FJMP")) Fjmp(int.Parse(parts[1]), ref row);
                     else if (instruction.StartsWith("PRINT")) Print(int.Parse(parts[1]));
                     else if (instruction.StartsWith("READ")) 
                     {
@@ -119,6 +120,21 @@ namespace PJPProject
                 Logger.Log(LogLevel.ERROR, iex.Message, ConsoleColor.Red);
             }
             _code.Clear();
+        }
+
+        private void IndexLabels()
+        {
+            int row = 0;
+            foreach (var instruction in _code)
+            {
+                if (instruction.StartsWith("LABEL"))
+                {
+                    var parts = instruction.Split(" ");
+                    int label = int.Parse(parts[1]);
+                    _labels[label] = row;
+                }
+                row++;
+            }
         }
 
         private void Add()
@@ -267,13 +283,21 @@ namespace PJPProject
         {
 
         }
-        private void Jmp()
+        private void Jmp(int to, ref int row)
         {
-
+            row = _labels[to];
         }
-        private void Fjmp()
+        private void Fjmp(int to, ref int row)
         {
-
+            var value = Pop();
+            if(value.type == PrimitiveType.Bool)
+            {
+                if (!Convert.ToBoolean(value.value))
+                {
+                    row = _labels[to];
+                }
+            }
+            else throw new InterpreterException($"Result of condition is not Boolean value");
         }
         private void Print(int n)
         {
