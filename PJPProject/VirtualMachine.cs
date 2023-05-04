@@ -260,8 +260,7 @@ namespace PJPProject
         {
             try
             {
-                var pop = _stack.Pop();
-                return pop;
+                return _stack.Pop();
             }
             catch (Exception)
             {
