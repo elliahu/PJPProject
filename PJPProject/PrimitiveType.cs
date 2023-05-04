@@ -115,9 +115,9 @@ namespace PJPProject
 
         public static PrimitiveType TypeResult(PrimitiveType type1, PrimitiveType type2)
         {
-            if (type1 == PrimitiveType.String || type2 == PrimitiveType.String)
+            if (type1 == PrimitiveType.String && type2 == PrimitiveType.String)
             {
-                return PrimitiveType.Error;
+                return PrimitiveType.String;
             }
 
             else if (type1 == PrimitiveType.Float || type2 == PrimitiveType.Float)
@@ -195,9 +195,9 @@ namespace PJPProject
             (PrimitiveType type, object value) val2,
             CompareOperation operation)
         {
-            if (val1.type == PrimitiveType.String || val2.type == PrimitiveType.String)
+            if (val1.type == PrimitiveType.String && val2.type == PrimitiveType.String)
             {
-                return (PrimitiveType.Error, -1);
+                return (PrimitiveType.Bool, Convert.ToString(val1.value) == Convert.ToString(val2.value));
             }
 
             switch (operation)

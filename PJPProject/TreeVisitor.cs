@@ -317,6 +317,7 @@ namespace PJPProject
             var left = context.IDENTIFIER().Symbol.Text.Trim();
             var right = Visit(context.expr());
             AddInstruction(VirtualMachine.Instruction.Save(left));
+            AddInstruction(VirtualMachine.Instruction.Load(left));
             return (PrimitiveType.Error, -1);
         }
 

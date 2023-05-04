@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace PJPProject
@@ -58,6 +59,34 @@ namespace PJPProject
         //this._code = code.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
         public void Dump() { Console.WriteLine(String.Join("\n", this._code)); }
 
+        private List<string> SplitArguments(string input)
+        {
+            var result = new List<string>();
+            int spaceIndex = 0;
+            string arg = "";
+            bool inString = false;
+            foreach(char c in input)
+            {
+                arg.Append(c);
+                if (c == '\"')
+                {
+                    inString = !inString;
+                    continue;
+                }
+
+                if(c == ' ' && !inString) 
+                {
+                    result.Add(arg);
+                    arg = "";
+                    spaceIndex++;
+                    continue;
+                }
+                if(spaceIndex == 0) { continue; }
+                
+            }
+            return result;
+        }
+
         public void Run()
         {
             if(_code.Count == 0)
@@ -73,8 +102,11 @@ namespace PJPProject
                 for(int row = 0; row < _code.Count;row++)
                 {
                     var instruction = _code[row];
-                    // TODO if there is something like PUSH S "a a", it will not work
-                    var parts = instruction.Split(" ");
+
+                    var parts = Regex.Matches(instruction, @"[\""].+?[\""]|[^ ]+")
+                    .Cast<Match>()
+                    .Select(m => m.Value)
+                    .ToList();
 
                     if (instruction.StartsWith("ADD")) Add();
                     else if (instruction.StartsWith("SUB")) Sub();
@@ -92,11 +124,23 @@ namespace PJPProject
                     else if (instruction.StartsWith("ITOF")) Itof();
                     else if (instruction.StartsWith("PUSH"))
                     {
-                        Push(TypeChecker.CharToType(parts[1]),
+                        if (parts[1] == "S" &&
+                            parts.Count == 2)
+                        {
+                            Push(TypeChecker.CharToType(parts[1]),
+                            TypeChecker.StringToObj(
+                                TypeChecker.CharToType(parts[1]),
+                                "")
+                            );
+                        }
+                        else
+                        {
+                            Push(TypeChecker.CharToType(parts[1]),
                             TypeChecker.StringToObj(
                                 TypeChecker.CharToType(parts[1]),
                                 parts[2])
                             );
+                        }
                     }
                     else if (instruction.StartsWith("POP")) Pop();
                     else if (instruction.StartsWith("LOAD")) Load(parts[1]);
@@ -266,7 +310,8 @@ namespace PJPProject
                 var asigned = Pop();
                 if (TypeChecker.CanCast(asigned.type, existing.type))
                 {
-                    SymbolTable.SetVariable(id, (TypeChecker.TypeResult(asigned.type, existing.type), asigned.value));
+                    var typeResult = TypeChecker.TypeResult(asigned.type, existing.type);
+                    SymbolTable.SetVariable(id, (typeResult, asigned.value));
                 }
                 else
                 {

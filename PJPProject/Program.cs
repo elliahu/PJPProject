@@ -5,7 +5,7 @@ using System.Globalization;
 
 Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
-var inputFile = "input.txt";
+var inputFile = "test_input4.txt";
 var outputFile = "output.txt";
 Logger.Log(LogLevel.INFO, "Parsing: " + inputFile);
 

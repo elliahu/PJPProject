@@ -1,5 +1,0 @@
-﻿if(false)
-	write "in";
-else
-	write "out";
-	
