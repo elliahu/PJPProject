@@ -34,11 +34,10 @@ namespace PJPProject
             }
             return (PrimitiveType.Error, -1);
         }
-
-        public override (PrimitiveType type, object value) VisitConditionBlockBlock([NotNull] PJPProjectParser.ConditionBlockBlockContext context)
+        public override (PrimitiveType type, object value) VisitConditionBlock([NotNull] PJPProjectParser.ConditionBlockContext context)
         {
             int last = _labels.Last() + 1;
-            Visit(context.expr()); // condition
+            var condition = Visit(context.expr()); // condition
             AddInstruction(VirtualMachine.Instruction.Fjmp(last));
             Visit(context.block());
             AddInstruction(VirtualMachine.Instruction.Label(last));
@@ -47,15 +46,83 @@ namespace PJPProject
             return (PrimitiveType.Error, -1);
         }
 
-        public override (PrimitiveType type, object value) VisitConditionBlockStatement([NotNull] PJPProjectParser.ConditionBlockStatementContext context)
+        public override (PrimitiveType type, object value) VisitConditionStatement([NotNull] PJPProjectParser.ConditionStatementContext context)
         {
             int last = _labels.Last() + 1;
-            Visit(context.expr()); // condition
+            var condition = Visit(context.expr());
             AddInstruction(VirtualMachine.Instruction.Fjmp(last));
             Visit(context.statement());
             AddInstruction(VirtualMachine.Instruction.Label(last));
             _labels.Add(last);
 
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitConditionBlockElseBlock([NotNull] PJPProjectParser.ConditionBlockElseBlockContext context)
+        {
+            int last = _labels.Last() + 1;
+            var condition = Visit(context.expr()); // condition
+            
+            AddInstruction(VirtualMachine.Instruction.Fjmp(last));
+            Visit(context.block()[0]);
+            AddInstruction(VirtualMachine.Instruction.Label(last));
+            _labels.Add(last);
+
+            if (!Convert.ToBoolean(condition.value))
+            {
+                Visit(context.block()[1]);
+            }
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitConditionBlockElseStatement([NotNull] PJPProjectParser.ConditionBlockElseStatementContext context)
+        {
+            int last = _labels.Last() + 1;
+            var condition = Visit(context.expr()); // condition
+
+            AddInstruction(VirtualMachine.Instruction.Fjmp(last));
+            Visit(context.block());
+            AddInstruction(VirtualMachine.Instruction.Label(last));
+            _labels.Add(last);
+
+            if (!Convert.ToBoolean(condition.value))
+            {
+                Visit(context.statement());
+            }
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitConditionStatementElseBlock([NotNull] PJPProjectParser.ConditionStatementElseBlockContext context)
+        {
+            int last = _labels.Last() + 1;
+            var condition = Visit(context.expr()); // condition
+
+            AddInstruction(VirtualMachine.Instruction.Fjmp(last));
+            Visit(context.statement());
+            AddInstruction(VirtualMachine.Instruction.Label(last));
+            _labels.Add(last);
+
+            if (!Convert.ToBoolean(condition.value))
+            {
+                Visit(context.block());
+            }
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitConditionStatementElseStatement([NotNull] PJPProjectParser.ConditionStatementElseStatementContext context)
+        {
+            int last = _labels.Last() + 1;
+            var condition = Visit(context.expr()); // condition
+
+            AddInstruction(VirtualMachine.Instruction.Fjmp(last));
+            Visit(context.statement()[0]);
+            AddInstruction(VirtualMachine.Instruction.Label(last));
+            _labels.Add(last);
+
+            if (!Convert.ToBoolean(condition.value))
+            {
+                Visit(context.statement()[1]);
+            }
             return (PrimitiveType.Error, -1);
         }
 

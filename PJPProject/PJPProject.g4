@@ -1,25 +1,27 @@
 ﻿grammar PJPProject;
 
 /** The start rule; begin parsing here. */
-program
-    : block     program? EOF
-    | statement program? EOF
-    | whileLoop program? EOF
-    | condition program? EOF                            
-    ;
+program: stat+ EOF;
+
+
+stat: block  stat?
+        | statement stat?
+        | whileLoop stat?
+        | condition stat?
+        ;
 
 whileLoop                                                                           
-    : WHILE_KEYWORD '(' expr ')' (block)  #whileBlockBlock
-    | WHILE_KEYWORD '(' expr ')' (statement)  #whileBlockStatement
+    : WHILE_KEYWORD '(' expr ')' block      #whileBlockBlock
+    | WHILE_KEYWORD '(' expr ')' statement  #whileBlockStatement
     ;
 
 condition                                                                           
-    : IF_KEYWORD '(' expr ')' (block)  else?  #conditionBlockBlock
-    | IF_KEYWORD '(' expr ')' (statement)  else?  #conditionBlockStatement
-    ;
-
-else
-    : ELSE_KEYWORD  (block|statement)   #elseBlock
+    : IF_KEYWORD '(' expr ')' block                                 #conditionBlock
+    | IF_KEYWORD '(' expr ')' block ELSE_KEYWORD block              #conditionBlockElseBlock
+    | IF_KEYWORD '(' expr ')' block ELSE_KEYWORD statement          #conditionBlockElseStatement
+    |IF_KEYWORD '(' expr ')' statement                              #conditionStatement
+    | IF_KEYWORD '(' expr ')' statement  ELSE_KEYWORD block         #conditionStatementElseBlock
+    | IF_KEYWORD '(' expr ')' statement  ELSE_KEYWORD statement     #conditionStatementElseStatement
     ;
 
 block
