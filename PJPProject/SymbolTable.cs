@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace PJPProject
 {
@@ -45,6 +46,28 @@ namespace PJPProject
             {
                 memory[variable.Text.Trim()] = value;
             }
+        }
+
+        public (PrimitiveType type, object value) GetVariable(string id)
+        {
+            if (memory.ContainsKey(id))
+            {
+                return memory[id];
+            }
+            else
+            {
+                return (PrimitiveType.Error, -1);
+            }
+        }
+
+        public void SetVariable(string id, (PrimitiveType type , object value) variable)
+        {
+            memory[id] = variable;
+        }
+
+        public bool Contains(string id)
+        {
+            return memory.ContainsKey(id);
         }
     }
 }
