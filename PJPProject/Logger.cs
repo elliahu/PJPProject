@@ -15,12 +15,14 @@ namespace PJPProject
     }
     public class Logger
     {
-        public static LogLevel level = LogLevel.INFO;
+        public static LogLevel level = LogLevel.DEBUG;
 
-        public static void Log(LogLevel level, string message)
+        public static void Log(LogLevel level, string message, ConsoleColor color = ConsoleColor.White )
         {
             if(level >= Logger.level)
             {
+                var c = Console.ForegroundColor;
+                Console.ForegroundColor = color;
                 Console.WriteLine(Enum.GetName(level) + ": " + message);
             }
         }

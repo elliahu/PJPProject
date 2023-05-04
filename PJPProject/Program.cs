@@ -26,11 +26,11 @@ if(parser.NumberOfSyntaxErrors == 0)
     visitor.Visit(tree);
 
     VirtualMachine vm = new(visitor.GetCode());
-    Console.WriteLine("\nGENERATED CODE:");
+    Logger.Log(LogLevel.INFO, "GENERATED CODE:", ConsoleColor.White);
     vm.DumpCode();
-    Console.WriteLine("\nOUTPUT:");
+    Logger.Log(LogLevel.INFO, "OUTPUT:", ConsoleColor.White);
     vm.Run();
 
-    Console.WriteLine("\nERRORS:");
+    Logger.Log(LogLevel.INFO, "COMPILE ERRORS:", ConsoleColor.White);
     ErrorList.Dump();
 }

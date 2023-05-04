@@ -92,54 +92,56 @@ namespace PJPProject
                     else if (instruction.StartsWith("JMP")) Jmp();
                     else if (instruction.StartsWith("FJMP")) Fjmp();
                     else if (instruction.StartsWith("PRINT")) Print(int.Parse(parts[1]));
-                    else if (instruction.StartsWith("READ")) Read();
+                    else if (instruction.StartsWith("READ")) 
+                    {
+                        if (parts[1] == "I") Read(PrimitiveType.Int);
+                        if (parts[1] == "F") Read(PrimitiveType.Float);
+                        if (parts[1] == "S") Read(PrimitiveType.String);
+                        if (parts[1] == "B") Read(PrimitiveType.Bool);
+                    }
                 }
             }
             catch(InterpreterException iex)
             {
-                var c = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Interpreter encountered the following Error:");
-                Console.WriteLine(iex.Message);
-                Console.ForegroundColor = c;
+                Logger.Log(LogLevel.ERROR, "Interpreter encountered the following Error:", ConsoleColor.Red);
+                Logger.Log(LogLevel.ERROR, iex.Message, ConsoleColor.Red);
             }
-            /*catch(Exception ex)
-            {
-                var c = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("VirtualMachine encountered the following Exception:");
-                Console.WriteLine(ex.Message);
-                Console.ForegroundColor = c;
-            }*/
         }
 
         private void Add()
         {
             var (val2, val1) = DoublePop();
-            var (type, value) = TypeChecker.Calc(val1,val2,TypeChecker.Operation.Add);
-            Push(type, value);
+            var (type, value) = TypeChecker.Algebra(val1,val2,TypeChecker.AlgebraOperation.Add);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '+' for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void Sub()
         {
             var (val2, val1) = DoublePop();
-            var (type, value) = TypeChecker.Calc(val1, val2, TypeChecker.Operation.Subtract);
-            Push(type, value);
+            var (type, value) = TypeChecker.Algebra(val1, val2, TypeChecker.AlgebraOperation.Subtract);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '-' for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void Mul()
         {
             var (val2, val1) = DoublePop();
-            var (type, value) = TypeChecker.Calc(val1, val2, TypeChecker.Operation.Multiply);
-            Push(type, value);
+            var (type, value) = TypeChecker.Algebra(val1, val2, TypeChecker.AlgebraOperation.Multiply);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '*' (MUL) for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void Div()
         {
             var (val2, val1) = DoublePop();
-            var (type, value) = TypeChecker.Calc(val1, val2, TypeChecker.Operation.Divide);
-            Push(type, value);
+            var (type, value) = TypeChecker.Algebra(val1, val2, TypeChecker.AlgebraOperation.Divide);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '/' (DIV) for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void Mod()
         {
-
+            var (val2, val1) = DoublePop();
+            var (type, value) = TypeChecker.Algebra(val1, val2, TypeChecker.AlgebraOperation.Modulo);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '%' (modulo) for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void Uminus()
         {
@@ -147,35 +149,61 @@ namespace PJPProject
         }
         private void Concat()
         {
-
+            var (val2, val1) = DoublePop();
+            var (type, value) = TypeChecker.Concat(val1, val2);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '.' (concat) for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void And()
         {
-
+            var (val2, val1) = DoublePop();
+            var (type, value) = TypeChecker.Logic(val1,val2, TypeChecker.LogicOperation.And);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '&&' (AND) for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         } 
         private void Or()
         {
-
+            var (val2, val1) = DoublePop();
+            var (type, value) = TypeChecker.Logic(val1, val2, TypeChecker.LogicOperation.Or);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '||' (OR) for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void Gt()
         {
-
+            var (val2, val1) = DoublePop();
+            var (type, value) = TypeChecker.Compare(val1, val2, TypeChecker.CompareOperation.GreaterThan);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '>' for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void Lt()
         {
-
+            var (val2, val1) = DoublePop();
+            var (type, value) = TypeChecker.Compare(val1, val2, TypeChecker.CompareOperation.LessThan);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '<' for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void Eq()
         {
-
+            var (val2, val1) = DoublePop();
+            var (type, value) = TypeChecker.Compare(val1, val2, TypeChecker.CompareOperation.Equal);
+            if (type != PrimitiveType.Error) Push(type, value);
+            else throw new InterpreterException($"Invalid operation '==' for types '{Enum.GetName(val1.type)}' and  '{Enum.GetName(val2.type)}'");
         }
         private void Not()
         {
-
+            var not = Pop();
+            var val = TypeChecker.Not(not);
+            if (val.type != PrimitiveType.Error) Push(val.type, val.value);
+            else throw new InterpreterException($"Invalid operation '!' for type '{Enum.GetName(not.type)}' ");
         }
         private void Itof()
         {
-
+            var integer = Pop();
+            if(integer.type == PrimitiveType.Int)
+            {
+                Push(PrimitiveType.Float, Convert.ToSingle(integer.value));
+            }
+            else throw new InterpreterException($"Invalid operation 'itof' for non integer type '{Enum.GetName(integer.type)}' ");
         }
         private void Push(PrimitiveType type, object value)
         {
@@ -194,7 +222,7 @@ namespace PJPProject
             }
             else
             {
-                throw new InterpreterException($"Could not load variable {id}. No such variable exists.");
+                throw new InterpreterException($"Could not load variable '{id}'. No such variable exists.");
             }
         }
         private void Save(string id)
@@ -236,9 +264,32 @@ namespace PJPProject
                 Console.WriteLine(p);
             });
         }
-        private void Read()
+        private void Read(PrimitiveType t)
         {
-
+            var read = Console.ReadLine();
+            int resultInt;
+            if (int.TryParse(read, out resultInt))
+            {
+                Push(t, resultInt);
+                return;
+            }
+            float resultFloat;
+            if (float.TryParse(read, out resultFloat))
+            {
+                Push(t, resultFloat);
+                return;
+            }
+            bool resultBool;
+            if(bool.TryParse(read, out resultBool))
+            {
+                Push(t, resultBool);
+                return;
+            }
+            else
+            {
+                Push(t, read!);
+                return;
+            }
         }
 
         private ((PrimitiveType type, object value), (PrimitiveType type, object value)) DoublePop()

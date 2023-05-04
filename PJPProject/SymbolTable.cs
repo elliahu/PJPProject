@@ -25,6 +25,10 @@ namespace PJPProject
                 memory.Add(name, (type, 0));
             else if (type == PrimitiveType.Float)
                 memory.Add(name, (type, (float)0));
+            else if (type == PrimitiveType.String)
+                memory.Add(name, (type, ""));
+            else if (type == PrimitiveType.Bool)
+                memory.Add(name, (type, false));
         }
 
         public (PrimitiveType type, object value) this[IToken variable]

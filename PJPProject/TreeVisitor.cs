@@ -10,7 +10,7 @@ namespace PJPProject
 {
     public class TreeVisitor: PJPProjectBaseVisitor<(PrimitiveType type, object value)>
     {
-        
+        public static SymbolTable SymbolTable = new();
         private StringBuilder _code = new();
         public string GetCode() => _code.ToString();
 
@@ -34,6 +34,7 @@ namespace PJPProject
             var type = Visit(context.primitiveType());
             foreach(var identifier in context.IDENTIFIER())
             {
+                SymbolTable.Add(identifier.Symbol, type.type);
                 AddInstruction(VirtualMachine.Instruction.Push(type));
                 AddInstruction(VirtualMachine.Instruction.Save(identifier.Symbol.Text));
             }
@@ -115,6 +116,10 @@ namespace PJPProject
             {
                 AddInstruction(VirtualMachine.Instruction.Sub);
             }
+            else if(op == ".")
+            {
+                AddInstruction(VirtualMachine.Instruction.Concat);
+            }
             return (PrimitiveType.Error, -1);
         }
 
@@ -131,9 +136,55 @@ namespace PJPProject
             {
                 AddInstruction(VirtualMachine.Instruction.Div);
             }
+            else if(op == "%")
+            {
+                AddInstruction(VirtualMachine.Instruction.Mod);
+            }
             return (PrimitiveType.Error, -1);
         }
 
+        public override (PrimitiveType type, object value) VisitCompare([NotNull] PJPProjectParser.CompareContext context)
+        {
+            Visit(context.expr()[0]);
+            Visit(context.expr()[1]);
+            var op = context.op.Text.Trim();
+            if(op == "==")
+            {
+                AddInstruction(VirtualMachine.Instruction.Eq);
+            }
+            if(op == ">")
+            {
+                AddInstruction(VirtualMachine.Instruction.Gt);
+            }
+            if(op == "<")
+            {
+                AddInstruction(VirtualMachine.Instruction.Lt);
+            }
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitAndOr([NotNull] PJPProjectParser.AndOrContext context)
+        {
+            Visit(context.expr()[0]);
+            Visit(context.expr()[1]);
+            var op = context.op.Text.Trim();
+            if(op == "&&")
+            {
+                AddInstruction(VirtualMachine.Instruction.And);
+            }
+            else if(op == "||")
+            {
+                AddInstruction(VirtualMachine.Instruction.Or);
+            }
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitNot([NotNull] PJPProjectParser.NotContext context)
+        {
+            Visit(context.expr());
+            AddInstruction(VirtualMachine.Instruction.Not);
+            return (PrimitiveType.Error, -1);
+        }
         public override (PrimitiveType type, object value) VisitAssignment([NotNull] PJPProjectParser.AssignmentContext context)
         {
             var left = context.IDENTIFIER().Symbol.Text.Trim();
@@ -151,6 +202,24 @@ namespace PJPProject
                 num++;
             }
             AddInstruction(VirtualMachine.Instruction.Print(num));
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitReadExpr([NotNull] PJPProjectParser.ReadExprContext context)
+        {
+            foreach (var id in context.IDENTIFIER())
+            {
+                var found = SymbolTable.GetVariable(id.Symbol.Text);
+                if(found.type != PrimitiveType.Error)
+                {
+                    AddInstruction(VirtualMachine.Instruction.Read(found.type));
+                    AddInstruction(VirtualMachine.Instruction.Save(id.Symbol.Text));
+                }
+                else
+                {
+                    throw new VirtualMachine.InterpreterException($"Could not load variable '{id}'. No such variable exists.");
+                }
+            }
             return (PrimitiveType.Error, -1);
         }
     }
