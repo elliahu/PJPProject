@@ -1,11 +1,29 @@
 ﻿grammar PJPProject;
 
 /** The start rule; begin parsing here. */
-program: statement+ ;
+program
+    : (statement+ | whileLoop | condition)+ EOF                                        #stmt
+    ;
+
+whileLoop
+    : WHILE_KEYWORD '(' expr ')' (block|statement) 
+    ;
+
+condition
+    : IF_KEYWORD '(' expr ')' (block|statement)  else?
+    ;
+
+else
+    : ELSE_KEYWORD  (block|statement)  
+    ;
+
+block
+    : '{' statement+ '}' 
+    ;
 
 statement
-    : primitiveType IDENTIFIER (',' IDENTIFIER)* ';' # declaration
-    | expr ';'                                       # emptyStmt
+    : primitiveType IDENTIFIER (',' IDENTIFIER)* (';')+ # declaration
+    | expr (';')+                                       # emptyStmt
     ;
 
 expr: expr op=(MUL|DIV|MOD) expr                # mulDiv
@@ -14,10 +32,10 @@ expr: expr op=(MUL|DIV|MOD) expr                # mulDiv
     | expr op=(AND|OR) expr                     # andOr
     | NOT expr                                  # not
     | SUB expr                                  # uminus
+    | STRING                                    # string
     | INT                                       # int
     | IDENTIFIER                                # id
     | FLOAT                                     # float
-    | STRING                                    # string
     | BOOL                                      # bool
     | '(' expr ')'                              # parens
     | <assoc=right> IDENTIFIER '=' expr         # assignment
@@ -39,7 +57,9 @@ STRING_KEYWORD : 'string';
 BOOL_KEYWORD : 'bool';
 WRITE_KEYWORD : 'write';
 READ_KEYWORD : 'read';
-
+WHILE_KEYWORD : 'while';
+IF_KEYWORD : 'if' ;
+ELSE_KEYWORD : 'else' ;
 SEMI:               ';';
 COMMA:              ',';
 MUL : '*' ; 
@@ -54,7 +74,7 @@ AND : '&&' ;
 OR : '||' ;
 NOT : '!' ;
 CONCAT : '.' ;
-STRING : '"'.*'"' ;
+STRING :  ('"' [a-zA-Z0-9(){}<>,.-_!?:/*+%=; ]+ '"') | '""';
 BOOL : ('true'|'false');
 IDENTIFIER : [a-zA-Z] [a-zA-Z0-9]* ; 
 FLOAT : [0-9]+'.'[0-9]+ ;

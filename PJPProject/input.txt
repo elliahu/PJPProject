@@ -1,13 +1,6 @@
-﻿float a;
-a = 10;
-int b;
-b = 3;
-write ((a / b) - 1) * 1;
-bool c;
-c = 1.0 > 0;
-write c;
-write 10 % 3.0;
-write true || false;
-write !true;
-write "a" . "b";
-write -2;
+﻿int a;;
+;;;;;;;
+while(a<10) {
+ write "a=",a;
+ a=a+1;
+}

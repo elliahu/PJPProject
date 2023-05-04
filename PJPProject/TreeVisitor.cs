@@ -25,10 +25,9 @@ namespace PJPProject
             _code.AppendLine(instruction);
         }
 
-
-        public override (PrimitiveType type, object value) VisitProgram([NotNull] PJPProjectParser.ProgramContext context)
+        public override (PrimitiveType type, object value) VisitStmt([NotNull] PJPProjectParser.StmtContext context)
         {
-            foreach(var statement in context.statement())
+            foreach (var statement in context.statement())
             {
                 Visit(statement);
             }
