@@ -1,4 +1,8 @@
-﻿if(false){
-	write "in";
+﻿int i;
+while(i < 3)
+{
+	write i+1;
+	i = i + 1;
 }
-write "out";
+if(true)
+	write "done";

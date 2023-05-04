@@ -9,7 +9,8 @@ program
     ;
 
 whileLoop                                                                           
-    : WHILE_KEYWORD '(' expr ')' (block|statement)  #whileBlock
+    : WHILE_KEYWORD '(' expr ')' (block)  #whileBlockBlock
+    | WHILE_KEYWORD '(' expr ')' (statement)  #whileBlockStatement
     ;
 
 condition                                                                           

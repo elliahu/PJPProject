@@ -47,6 +47,35 @@ namespace PJPProject
             return (PrimitiveType.Error, -1);
         }
 
+        public override (PrimitiveType type, object value) VisitConditionBlockStatement([NotNull] PJPProjectParser.ConditionBlockStatementContext context)
+        {
+            int last = _labels.Last() + 1;
+            Visit(context.expr()); // condition
+            AddInstruction(VirtualMachine.Instruction.Fjmp(last));
+            Visit(context.statement());
+            AddInstruction(VirtualMachine.Instruction.Label(last));
+            _labels.Add(last);
+
+            return (PrimitiveType.Error, -1);
+        }
+
+        public override (PrimitiveType type, object value) VisitWhileBlockBlock([NotNull] PJPProjectParser.WhileBlockBlockContext context)
+        {
+            int skip = _labels.Last() + 1;
+            _labels.Add(skip);
+            int loop = _labels.Last() + 1;
+            _labels.Add(loop);
+            Visit(context.expr()); // condition
+            AddInstruction(VirtualMachine.Instruction.Fjmp(skip));
+            AddInstruction(VirtualMachine.Instruction.Label(loop));
+            Visit(context.block());
+            Visit(context.expr());// condition
+            AddInstruction(VirtualMachine.Instruction.Not);
+            AddInstruction(VirtualMachine.Instruction.Fjmp(loop));
+            AddInstruction(VirtualMachine.Instruction.Label(skip));
+
+            return (PrimitiveType.Error, -1);
+        }
         public override (PrimitiveType type, object value) VisitDeclaration([NotNull] PJPProjectParser.DeclarationContext context)
         {
             var type = Visit(context.primitiveType());
