@@ -324,7 +324,7 @@ namespace PJPProject
         public override (PrimitiveType type, object value) VisitWriteExpr([NotNull] PJPProjectParser.WriteExprContext context)
         {
             int num = 0;
-            foreach (var expr in context.expr())
+            foreach (var expr in context.expr().Reverse())
             {
                 Visit(expr);
                 num++;

@@ -19,7 +19,7 @@ condition
     : IF_KEYWORD '(' expr ')' block                                 #conditionBlock
     | IF_KEYWORD '(' expr ')' block ELSE_KEYWORD block              #conditionBlockElseBlock
     | IF_KEYWORD '(' expr ')' block ELSE_KEYWORD statement          #conditionBlockElseStatement
-    |IF_KEYWORD '(' expr ')' statement                              #conditionStatement
+    | IF_KEYWORD '(' expr ')' statement                             #conditionStatement
     | IF_KEYWORD '(' expr ')' statement  ELSE_KEYWORD block         #conditionStatementElseBlock
     | IF_KEYWORD '(' expr ')' statement  ELSE_KEYWORD statement     #conditionStatementElseStatement
     ;
