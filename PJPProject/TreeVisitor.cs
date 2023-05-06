@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace PJPProject
 {
@@ -164,7 +165,7 @@ namespace PJPProject
             }
             else if(context.type.Text.Equals("float")) 
             {
-                return (PrimitiveType.Float, 0);
+                return (PrimitiveType.Float, 0.0f);
             }
             else if(context.type.Text.Equals("string"))
             {
@@ -314,10 +315,10 @@ namespace PJPProject
         }
         public override (PrimitiveType type, object value) VisitAssignment([NotNull] PJPProjectParser.AssignmentContext context)
         {
-            var left = context.IDENTIFIER().Symbol.Text.Trim();
-            var right = Visit(context.expr());
-            AddInstruction(VirtualMachine.Instruction.Save(left));
-            AddInstruction(VirtualMachine.Instruction.Load(left));
+            var left = context.IDENTIFIER().Symbol.Text.Trim(); // ID
+            Visit(context.expr()); // Resolve expression on the right
+            AddInstruction(VirtualMachine.Instruction.Save(left)); // save the result to the ID on the left
+            AddInstruction(VirtualMachine.Instruction.Load(left)); // Push value of the ID to the stack
             return (PrimitiveType.Error, -1);
         }
 
