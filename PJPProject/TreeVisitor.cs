@@ -315,10 +315,17 @@ namespace PJPProject
         }
         public override (PrimitiveType type, object value) VisitAssignment([NotNull] PJPProjectParser.AssignmentContext context)
         {
-            var left = context.IDENTIFIER().Symbol.Text.Trim(); // ID
-            Visit(context.expr()); // Resolve expression on the right
-            AddInstruction(VirtualMachine.Instruction.Save(left)); // save the result to the ID on the left
-            AddInstruction(VirtualMachine.Instruction.Load(left)); // Push value of the ID to the stack
+            var id = context.IDENTIFIER().Symbol.Text.Trim(); // ID
+            var right = Visit(context.expr()); // Resolve expression on the right
+            var left = SymbolTable.GetVariable(id);
+            if(TypeChecker.CanCast(right.type, left.type) &&
+               right.type == PrimitiveType.Int &&
+               left.type == PrimitiveType.Float)
+            {
+                AddInstruction(VirtualMachine.Instruction.Itof);
+            }
+            AddInstruction(VirtualMachine.Instruction.Save(id)); // save the result to the ID on the left
+            AddInstruction(VirtualMachine.Instruction.Load(id)); // Push value of the ID to the stack
             return (PrimitiveType.Error, -1);
         }
 

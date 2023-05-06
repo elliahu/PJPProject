@@ -1,2 +1,3 @@
 ﻿float a,b,c;
 a=b=c=15;
+write a,b,c;
