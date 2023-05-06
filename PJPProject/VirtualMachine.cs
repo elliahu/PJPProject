@@ -325,7 +325,7 @@ namespace PJPProject
         private void Print(int n)
         {
             PopN(n).ForEach((p) => { 
-                Console.WriteLine(p);
+                Console.WriteLine($"[{Enum.GetName(p.type)}]\t {p.value}");
             });
         }
         private void Read(PrimitiveType t)
